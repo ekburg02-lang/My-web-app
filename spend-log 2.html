@@ -1,0 +1,574 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper: #F1F0EA;
+    --card: #FFFFFF;
+    --ink: #1B1B18;
+    --ink-soft: #6E6D64;
+    --teal: #1F6F5C;
+    --teal-soft: #E4EFEC;
+    --gold: #E8B93B;
+    --gold-soft: #FBF1D6;
+    --line: #DBD8CC;
+    --danger: #B5484A;
+    --radius: 14px;
+  }
+
+  *{ box-sizing: border-box; }
+  html, body { margin:0; padding:0; }
+
+  #app-root{
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+  }
+
+  #phone{
+    width: 100%;
+    max-width: 440px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .mono{ font-family: 'IBM Plex Mono', 'Courier New', monospace; }
+
+  /* ---------- Header ---------- */
+  header{
+    padding: 22px 20px 16px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  header h1{
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  header .tag{
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* ---------- Week summary card ---------- */
+  .week-card{
+    margin: 0 16px 16px;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .week-card .label{
+    font-size: 12px;
+    color: #C9C7BC;
+    margin-bottom: 6px;
+  }
+  .week-card .amount{
+    font-size: 34px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .week-card .range{
+    font-size: 11px;
+    color: #9C9A8E;
+    margin-top: 4px;
+  }
+  .week-card .bar-row{
+    display: flex;
+    gap: 3px;
+    margin-top: 14px;
+    height: 5px;
+  }
+  .week-card .bar{
+    flex: 1;
+    background: #3A3A34;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .week-card .bar > span{
+    display: block;
+    height: 100%;
+    background: var(--gold);
+  }
+
+  /* ---------- Quick add ---------- */
+  .add-card{
+    margin: 0 16px 16px;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 18px;
+    border: 1px solid var(--line);
+  }
+  .amount-row{
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+  }
+  .amount-row .sign{
+    font-size: 26px;
+    color: var(--ink-soft);
+    margin-right: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .amount-row input{
+    border: none;
+    outline: none;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 30px;
+    font-weight: 600;
+    width: 100%;
+    background: transparent;
+    color: var(--ink);
+  }
+  .amount-row input::placeholder{ color: #C7C5B8; }
+
+  .chip-grid{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .chip{
+    font-size: 13px;
+    padding: 8px 13px;
+    border-radius: 20px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink-soft);
+    cursor: pointer;
+    user-select: none;
+    transition: background .12s, color .12s, border-color .12s;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .chip.active{
+    background: var(--teal);
+    border-color: var(--teal);
+    color: #fff;
+  }
+
+  .note-row input{
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    outline: none;
+    background: var(--paper);
+    color: var(--ink);
+    margin-bottom: 14px;
+  }
+  .note-row input::placeholder{ color: #A8A69A; }
+
+  .save-btn{
+    width: 100%;
+    border: none;
+    background: var(--teal);
+    color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform .08s, background .15s;
+  }
+  .save-btn:active{ transform: scale(0.98); }
+  .save-btn:disabled{ background: #C7C5B8; cursor: not-allowed; }
+  .save-btn.success{ background: var(--gold); color: var(--ink); }
+
+  /* ---------- History (receipt tape) ---------- */
+  .history-wrap{
+    margin: 0 16px 24px;
+    flex: 1;
+  }
+  .history-head{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4px 10px;
+  }
+  .history-head h2{
+    font-size: 13px;
+    margin: 0;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .history-head .count{
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .tape{
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .perf{
+    height: 10px;
+    background-image: radial-gradient(circle at 6px 5px, var(--paper) 4px, transparent 4.5px);
+    background-size: 12px 10px;
+    background-position: -2px 0;
+  }
+
+  .entry{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .entry:last-child{ border-bottom: none; }
+  .entry .dot{
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--teal);
+    flex-shrink: 0;
+  }
+  .entry .details{ flex: 1; min-width: 0; }
+  .entry .cat{
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .entry .meta{
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .entry .amt{
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .entry .del{
+    background: none;
+    border: none;
+    color: #C7C5B8;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 2px 4px;
+    flex-shrink: 0;
+  }
+  .entry .del:hover{ color: var(--danger); }
+
+  .empty-state{
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 13.5px;
+  }
+  .empty-state .big{
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+
+  .loading{
+    padding: 30px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .toast{
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 18px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-family: 'Space Grotesk', sans-serif;
+    opacity: 0;
+    transition: opacity .25s, transform .25s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show{
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+</style>
+
+<div id="app-root">
+  <div id="phone">
+    <header>
+      <div>
+        <h1>Spend Log</h1>
+        <div class="tag">tap a category, drop in the number</div>
+      </div>
+    </header>
+
+    <div id="week-card" class="week-card">
+      <div class="loading">loading your week…</div>
+    </div>
+
+    <div class="add-card">
+      <div class="amount-row">
+        <span class="sign mono">$</span>
+        <input id="amount-input" type="number" inputmode="decimal" placeholder="0.00" step="0.01" min="0">
+      </div>
+      <div class="chip-grid" id="chip-grid"></div>
+      <div class="note-row">
+        <input id="note-input" type="text" placeholder="what was it? (optional)">
+      </div>
+      <button class="save-btn" id="save-btn" disabled>Log it</button>
+    </div>
+
+    <div class="history-wrap">
+      <div class="history-head">
+        <h2>Recent</h2>
+        <span class="count" id="entry-count"></span>
+      </div>
+      <div class="tape">
+        <div class="perf"></div>
+        <div id="entry-list"><div class="loading">loading entries…</div></div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const CATEGORIES = ["Groceries","Dining Out","Transport","Entertainment","Shopping","Bills & Utilities","Health","Other"];
+  const STORAGE_KEY = "expense-entries";
+
+  let entries = [];
+  let selectedCategory = null;
+  let storageReady = false;
+
+  const $ = (sel) => document.querySelector(sel);
+  const amountInput = $("#amount-input");
+  const noteInput = $("#note-input");
+  const saveBtn = $("#save-btn");
+  const chipGrid = $("#chip-grid");
+  const entryList = $("#entry-list");
+  const weekCard = $("#week-card");
+  const entryCount = $("#entry-count");
+  const toastEl = $("#toast");
+
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    setTimeout(() => toastEl.classList.remove("show"), 1600);
+  }
+
+  function fmt(n){
+    return n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  }
+
+  function mondayOf(d){
+    const date = new Date(d);
+    const day = date.getDay(); // 0=Sun..6=Sat
+    const diff = (day === 0 ? -6 : 1 - day);
+    date.setDate(date.getDate() + diff);
+    date.setHours(0,0,0,0);
+    return date;
+  }
+
+  function dateLabel(iso){
+    const d = new Date(iso);
+    const today = new Date();
+    const y = new Date(); y.setDate(today.getDate()-1);
+    const sameDay = (a,b) => a.toDateString() === b.toDateString();
+    if (sameDay(d, today)) return "Today";
+    if (sameDay(d, y)) return "Yesterday";
+    return d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+  }
+
+  function renderChips(){
+    chipGrid.innerHTML = "";
+    CATEGORIES.forEach(cat => {
+      const chip = document.createElement("div");
+      chip.className = "chip" + (selectedCategory === cat ? " active" : "");
+      chip.textContent = cat;
+      chip.onclick = () => {
+        selectedCategory = (selectedCategory === cat) ? null : cat;
+        renderChips();
+        updateSaveState();
+      };
+      chipGrid.appendChild(chip);
+    });
+  }
+
+  function updateSaveState(){
+    const amt = parseFloat(amountInput.value);
+    saveBtn.disabled = !(amt > 0 && selectedCategory);
+  }
+
+  function weekBounds(offsetWeeks){
+    const start = mondayOf(new Date());
+    start.setDate(start.getDate() + offsetWeeks*7);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 6);
+    end.setHours(23,59,59,999);
+    return {start, end};
+  }
+
+  function renderWeekCard(){
+    const {start, end} = weekBounds(0);
+    const weekEntries = entries.filter(e => {
+      const d = new Date(e.date);
+      return d >= start && d <= end;
+    });
+    const total = weekEntries.reduce((s,e) => s + e.amount, 0);
+
+    // per-category breakdown for the mini bar
+    const byCat = {};
+    CATEGORIES.forEach(c => byCat[c] = 0);
+    weekEntries.forEach(e => { byCat[e.category] = (byCat[e.category]||0) + e.amount; });
+    const maxCat = Math.max(1, ...Object.values(byCat));
+
+    const rangeStr = start.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + " – " +
+                     end.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+
+    weekCard.innerHTML = `
+      <div class="label">This week</div>
+      <div class="amount mono">$${fmt(total)}</div>
+      <div class="range mono">${rangeStr}</div>
+      <div class="bar-row">
+        ${CATEGORIES.map(c => `<div class="bar" title="${c}"><span style="width:${Math.round((byCat[c]/maxCat)*100)}%"></span></div>`).join("")}
+      </div>
+    `;
+  }
+
+  function renderEntries(){
+    entryCount.textContent = entries.length ? `${entries.length} logged` : "";
+    if (!entries.length){
+      entryList.innerHTML = `<div class="empty-state"><div class="big">🧾</div>Nothing logged yet — add your first expense above.</div>`;
+      return;
+    }
+    const sorted = [...entries].sort((a,b) => new Date(b.date) - new Date(a.date) || b.createdAt - a.createdAt);
+    entryList.innerHTML = sorted.map(e => `
+      <div class="entry" data-id="${e.id}">
+        <div class="dot"></div>
+        <div class="details">
+          <div class="cat">${e.category}</div>
+          <div class="meta">${dateLabel(e.date)}${e.note ? " · " + escapeHtml(e.note) : ""}</div>
+        </div>
+        <div class="amt mono">$${fmt(e.amount)}</div>
+        <button class="del" data-id="${e.id}" aria-label="Delete entry">✕</button>
+      </div>
+    `).join("");
+
+    entryList.querySelectorAll(".del").forEach(btn => {
+      btn.onclick = () => deleteEntry(btn.dataset.id);
+    });
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement("div");
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  async function loadEntries(){
+    try{
+      const result = await window.storage.get(STORAGE_KEY, false);
+      entries = result && result.value ? JSON.parse(result.value) : [];
+    } catch(err){
+      entries = [];
+    }
+    storageReady = true;
+    renderEntries();
+    renderWeekCard();
+  }
+
+  async function persist(){
+    try{
+      const result = await window.storage.set(STORAGE_KEY, JSON.stringify(entries), false);
+      if (!result){
+        showToast("Couldn't save — try again");
+        return false;
+      }
+      return true;
+    } catch(err){
+      showToast("Couldn't save — try again");
+      return false;
+    }
+  }
+
+  async function addEntry(){
+    const amt = parseFloat(amountInput.value);
+    if (!(amt > 0) || !selectedCategory) return;
+
+    const entry = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+      amount: Math.round(amt*100)/100,
+      category: selectedCategory,
+      note: noteInput.value.trim(),
+      date: new Date().toISOString(),
+      createdAt: Date.now()
+    };
+
+    entries.push(entry);
+    renderEntries();
+    renderWeekCard();
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Saving…";
+    const ok = await persist();
+    saveBtn.classList.toggle("success", ok);
+    saveBtn.textContent = ok ? "Logged ✓" : "Log it";
+
+    if (ok){
+      amountInput.value = "";
+      noteInput.value = "";
+      selectedCategory = null;
+      renderChips();
+      showToast(`Logged $${fmt(entry.amount)} · ${entry.category}`);
+    }
+
+    setTimeout(() => {
+      saveBtn.classList.remove("success");
+      saveBtn.textContent = "Log it";
+      updateSaveState();
+    }, 900);
+  }
+
+  async function deleteEntry(id){
+    const prev = entries;
+    entries = entries.filter(e => e.id !== id);
+    renderEntries();
+    renderWeekCard();
+    const ok = await persist();
+    if (!ok){
+      entries = prev;
+      renderEntries();
+      renderWeekCard();
+    }
+  }
+
+  amountInput.addEventListener("input", updateSaveState);
+  saveBtn.addEventListener("click", addEntry);
+  amountInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !saveBtn.disabled) addEntry();
+  });
+
+  renderChips();
+  loadEntries();
+})();
+</script>
